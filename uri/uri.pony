@@ -50,6 +50,18 @@ class val Uri
     let auth = authority as Authority
     if unsafe then auth.string_unsafe() else auth.string() end
 
+class val RelativeRef
+  let authority: OptionalAuthority
+  let path: String
+  let query: OptionalQuery
+  let fragment: OptionalFragment
+
+  new val create(representation: String) =>
+    authority = None
+    path = ""
+    query = None
+    fragment = None
+
 type OptionalAuthority is (Authority | None)
 
 class val Authority

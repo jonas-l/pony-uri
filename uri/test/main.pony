@@ -8,3 +8,4 @@ actor Main is TestList
   fun tag tests(test: PonyTest) =>
     UriTests.make().tests(test)
     IpTests.make().tests(test)
+    RelativeRefTests.make().tests(test)
