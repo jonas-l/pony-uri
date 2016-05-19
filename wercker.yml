@@ -1,0 +1,5 @@
+build-test:
+  box: ponylang/ponyc
+  steps:
+    - script: {name: 'compile', code: 'ponyc uri/'}
+    - script: {name: 'test', code: './uri'}
