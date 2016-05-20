@@ -72,7 +72,7 @@ class val _UriSyntax
     (let path, i) = if authority isnt None then
         _parse_path_abempty(i)
       else
-        _parse_path_empty(i)
+        try _parse_path_noscheme(i) else _parse_path_empty(i) end
       end
 
     (authority, path, i)
@@ -188,6 +188,13 @@ class val _UriSyntax
       i = _skip_segment_nz(i)
       i = _skip_multi_segments(i)
     end
+
+    (_substring(pos, i), i)
+
+  fun _parse_path_noscheme(pos: USize): (String, USize)? =>
+    var i = _skip_segment_nz_nc(pos)
+
+    i = _skip_multi_segments(i)
 
     (_substring(pos, i), i)
 
