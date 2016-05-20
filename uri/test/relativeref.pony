@@ -7,6 +7,7 @@ actor RelativeRefTests is TestList
 
   fun tag tests(test: PonyTest) =>
     test(_RelativeRefCanBeNetworkPath)
+    test(_RelativeRefCanBeAbsolutePath)
     test(_RelativeRefCanBeRelativePath)
     test(_RelativeRefCanBeEmpty)
 
@@ -25,6 +26,17 @@ class iso _RelativeRefCanBeNetworkPath is UnitTest
     end
 
     h.assert_eq[String]("/some-path", rel.path)
+    h.assert_eq[String]("query", _Query.of(rel, h))
+    h.assert_eq[String]("fragment", _Fragment.of(rel, h))
+
+class iso _RelativeRefCanBeAbsolutePath is UnitTest
+  fun name(): String => "uri/RelativeRef can be absolute-path reference"
+
+  fun apply(h: TestHelper) ? =>
+    let rel = RelativeRef("/absolute-path?query#fragment")
+
+    h.assert_is[OptionalAuthority](None, rel.authority)
+    h.assert_eq[String]("/absolute-path", rel.path)
     h.assert_eq[String]("query", _Query.of(rel, h))
     h.assert_eq[String]("fragment", _Fragment.of(rel, h))
 

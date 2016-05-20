@@ -72,7 +72,11 @@ class val _UriSyntax
     (let path, i) = if authority isnt None then
         _parse_path_abempty(i)
       else
-        try _parse_path_noscheme(i) else _parse_path_empty(i) end
+        try _parse_path_absolute(i) else
+          try _parse_path_noscheme(i) else
+            _parse_path_empty(i)
+          end
+        end
       end
 
     (authority, path, i)
