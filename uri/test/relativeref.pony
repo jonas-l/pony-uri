@@ -9,6 +9,7 @@ actor RelativeRefTests is TestList
     test(_RelativeRefCanBeNetworkPath)
     test(_RelativeRefCanBeAbsolutePath)
     test(_RelativeRefCanBeRelativePath)
+    test(_RelativeRefFirstSegmentWithColonPreceededByDotSegment)
     test(_RelativeRefCanBeEmpty)
 
 class iso _RelativeRefCanBeNetworkPath is UnitTest
@@ -50,6 +51,16 @@ class iso _RelativeRefCanBeRelativePath is UnitTest
     h.assert_eq[String]("relative-path", rel.path)
     h.assert_eq[String]("query", _Query.of(rel, h))
     h.assert_eq[String]("fragment", _Fragment.of(rel, h))
+
+class iso _RelativeRefFirstSegmentWithColonPreceededByDotSegment is UnitTest
+  fun name(): String =>
+    "uri/RelativeRef first segment with colon preceded by a dot segment"
+
+  fun apply(h: TestHelper) ? =>
+    h.assert_eq[String]("./this:that", RelativeRef("./this:that").path)
+
+    let rel_constructor = _ConstructorOf.relative_ref("this:that")
+    h.assert_error(rel_constructor, "Colon in first segment")
 
 class iso _RelativeRefCanBeEmpty is UnitTest
   fun name(): String => "uri/RelativeRef can be empty"

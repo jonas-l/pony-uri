@@ -3,6 +3,9 @@ use ".."
 
 primitive _ConstructorOf
   fun uri(rep: String): ITest => lambda()(rep)? => Uri(rep) end
+  
+  fun relative_ref(rep: String): ITest =>
+    lambda()(rep)? => RelativeRef(rep) end
 
 primitive _Authority
   fun host(uri_ref: (Uri | RelativeRef), h: TestHelper): Host ? =>

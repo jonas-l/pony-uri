@@ -60,6 +60,9 @@ class val RelativeRef
     (authority, path, query, fragment, let i) =
       _UriSyntax(representation).parse_relative_ref()
 
+    let entire_rep_used = i == representation.size()
+    if not entire_rep_used then error end
+
 type OptionalAuthority is (Authority | None)
 
 class val Authority
