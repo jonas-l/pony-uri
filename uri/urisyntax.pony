@@ -54,6 +54,29 @@ class val _UriSyntax
 
     (authority, path, i)
 
+  fun parse_relative_ref():
+    (OptionalAuthority, String, OptionalQuery, OptionalFragment, USize)?
+  =>
+    var i: USize = 0
+
+    (let authority, let path, i) = _parse_relative_part(i)
+    (let query, i) = _parse_query(i)
+    (let fragment, i) = _parse_fragment(i)
+
+    (authority, path, query, fragment, i)
+
+  fun _parse_relative_part(pos: USize): (OptionalAuthority, String, USize)? =>
+    var i: USize = pos
+
+    (let authority, i) = _parse_authority(i)
+    (let path, i) = if authority isnt None then
+        _parse_path_abempty(i)
+      else
+        _parse_path_empty(i)
+      end
+
+    (authority, path, i)
+
   fun _parse_authority(pos: USize): (OptionalAuthority, USize)? =>
     var i = pos
 

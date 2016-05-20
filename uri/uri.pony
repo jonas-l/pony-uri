@@ -56,11 +56,9 @@ class val RelativeRef
   let query: OptionalQuery
   let fragment: OptionalFragment
 
-  new val create(representation: String) =>
-    authority = None
-    path = ""
-    query = None
-    fragment = None
+  new val create(representation: String) ? =>
+    (authority, path, query, fragment, let i) =
+      _UriSyntax(representation).parse_relative_ref()
 
 type OptionalAuthority is (Authority | None)
 
