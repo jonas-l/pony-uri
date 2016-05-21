@@ -50,6 +50,40 @@ class val Uri
     let auth = authority as Authority
     if unsafe then auth.string_unsafe() else auth.string() end
 
+class val RelativeRef
+  let authority: OptionalAuthority
+  let path: String
+  let query: OptionalQuery
+  let fragment: OptionalFragment
+
+  new val create(representation: String) ? =>
+    (authority, path, query, fragment, let i) =
+      _UriSyntax(representation).parse_relative_ref()
+
+    let entire_rep_used = i == representation.size()
+    if not entire_rep_used then error end
+
+  fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
+    _string(fmt, false)
+
+  fun string_unsafe(fmt: FormatSettings = FormatSettingsDefault): String iso^
+  =>
+    _string(fmt, true)
+
+  fun _string(fmt: FormatSettings, unsafe: Bool): String iso^ =>
+    let s = recover String end
+
+    try s.append("//" + _authority_string(unsafe)) end
+    s.append(path)
+    try s.append("?" + (query as String)) end
+    try s.append("#" + (fragment as String)) end
+
+    consume s
+
+  fun _authority_string(unsafe: Bool): String iso^ ? =>
+    let auth = authority as Authority
+    if unsafe then auth.string_unsafe() else auth.string() end
+
 type OptionalAuthority is (Authority | None)
 
 class val Authority
