@@ -2,5 +2,19 @@ build-test:
   box: ponylang/ponyc
   steps:
     - script: {name: 'ponyc version', code: 'ponyc -v'}
-    - script: {name: 'compile', code: 'ponyc uri/test'}
-    - script: {name: 'test', code: './test'}
+    - script:
+        name: 'test not optimized'
+        code: |
+          set -e
+
+          ponyc -d uri/test
+          ./test
+          rm ./test
+    - script:
+        name: 'test optimized'
+        code: |
+          set -e
+
+          ponyc uri/test
+          ./test
+          rm ./test
