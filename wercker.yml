@@ -1,5 +1,55 @@
+extract-examples:
+  box: {id: 'alpine:3.3', cmd: '/bin/sh'}
+  steps:
+    - script:
+        name: 'extract examples'
+        code: |
+          cat > extract-examples <<- EOM
+          {
+            if (\$0 ~ /\`\`\`pony/) {
+              count++;
+              EXAMPLE_FILENAME = DEST_DIR count ".pony";
+              print "use \"" USE "\"" > EXAMPLE_FILENAME;
+              print "actor Main" > EXAMPLE_FILENAME;
+              print "  new create(env: Env) =>" >> EXAMPLE_FILENAME;
+              in_code = 1;
+            } else if (\$0 ~ /\`\`\`/) {
+              in_code = 0;
+            } else if (in_code == 1) {
+              print "    " \$0 >> EXAMPLE_FILENAME;
+            }
+          }
+          EOM
+          DEST_DIR=.examples/
+          mkdir $DEST_DIR
+          cat README.md | awk -v USE=uri DEST_DIR=$DEST_DIR -f extract-examples
+          rm extract-examples
+
+          cd $DEST_DIR
+          for FILENAME in *; do
+            DIR=${FILENAME%%.*}
+            mkdir $DIR
+            mv $FILENAME $DIR/example.pony
+            echo Example extracted to $DEST_DIR$DIR/example.pony
+          done
+
 compile-test:
   box: ponylang/ponyc
   steps:
     - script: {name: 'ponyc version', code: 'ponyc -v'}
-    - script: {name: 'compile', code: 'ponyc $PONY_ARGS uri/test && ./test'}
+    - script: {name: 'compile library', code: 'ponyc $PONY_ARGS uri/test && ./test'}
+    - script:
+        name: compile examples
+        code: |
+          set -e
+          
+          cd .examples/
+          for EXAMPLE_DIR in *; do
+            cd $EXAMPLE_DIR
+            echo "Compiling the following example"
+            echo ""
+            cat example.pony
+            echo ""
+            env PONYPATH=$WERCKER_ROOT ponyc $PONY_ARGS
+            cd ..
+          done
