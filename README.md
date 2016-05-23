@@ -9,8 +9,7 @@ Here's an example of parsing an URI into five main components:
 let uri = Uri("foo://example.com:8042/over/there?name=ferret#nose")
 
 uri.scheme         // foo
-uri.authority.host // example.com
-uri.authority.port // 8084
+uri.authority      // Authority with host: example.com, port: 8042 
 uri.path           // /over/there
 uri.query          // name=ferret
 uri.fragment       // nose
