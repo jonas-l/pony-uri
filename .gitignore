@@ -2,3 +2,5 @@
 uri/test/test
 
 *.dSYM
+
+*.sublime-*
