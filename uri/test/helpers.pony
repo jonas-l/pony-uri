@@ -9,7 +9,7 @@ primitive _ConstructorOf
 
 primitive _Authority
   fun host(uri_ref: (Uri | RelativeRef), h: TestHelper): Host ? =>
-    of(uri_ref, h).host
+    of(uri_ref, h).host()
 
   fun unexpected(host': Host, h: TestHelper) =>
     match host'
@@ -28,7 +28,7 @@ primitive _Authority
   fun user_info(uri: Uri, h: TestHelper): UserInfo? =>
     let authority = of(uri, h)
     try
-      authority.user_info as UserInfo
+      authority.user_info() as UserInfo
     else
       h.fail("UserInfo does not exist")
       error
@@ -37,7 +37,7 @@ primitive _Authority
   fun port(uri: Uri, h: TestHelper): U16? =>
     let authority = of(uri, h)
     try
-      authority.port as U16
+      authority.port() as U16
     else
       h.fail("Port does not exist")
       error
@@ -45,13 +45,7 @@ primitive _Authority
 
   fun of(uri_ref: (Uri | RelativeRef), h: TestHelper): Authority? =>
     try
-      match uri_ref
-      | let uri: Uri => uri.authority as Authority
-      | let rel: RelativeRef => rel.authority as Authority
-      else
-        h.fail("Unexpected Uri or RelativeRef")
-        error
-      end
+      uri_ref.authority() as Authority
     else
       h.fail("Authority does not exist")
       error
@@ -60,13 +54,7 @@ primitive _Authority
 primitive _Query
   fun of(uri_ref: (Uri | RelativeRef), h: TestHelper): String? =>
     try
-      match uri_ref
-      | let uri: Uri => uri.query as String
-      | let rel: RelativeRef => rel.query as String
-      else
-        h.fail("Unexpected Uri or RelativeRef")
-        error
-      end
+      uri_ref.query() as String
     else
       h.fail("Query does not exist")
       error
@@ -75,13 +63,7 @@ primitive _Query
 primitive _Fragment
   fun of(uri_ref: (Uri | RelativeRef), h: TestHelper): String? =>
     try
-      match uri_ref
-      | let uri: Uri => uri.fragment as String
-      | let rel: RelativeRef => rel.fragment as String
-      else
-        h.fail("Unexpected Uri or RelativeRef")
-        error
-      end
+      uri_ref.fragment() as String
     else
       h.fail("Fragment does not exist")
       error

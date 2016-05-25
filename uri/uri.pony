@@ -15,19 +15,25 @@ class val Uri
   [1]: http://tools.ietf.org/html/rfc3986
   [2]: http://tools.ietf.org/html/rfc3986#section-3
   """
-  let scheme: String
-  let authority: OptionalAuthority
-  let path: String
-  let query: OptionalQuery
-  let fragment: OptionalFragment
+  let _scheme: String
+  let _authority: OptionalAuthority
+  let _path: String
+  let _query: OptionalQuery
+  let _fragment: OptionalFragment
 
   new val create(representation: String)? =>
-    (scheme, authority, path, query, fragment, let i) =
+    (_scheme, _authority, _path, _query, _fragment, let i) =
       _UriSyntax(representation).parse_uri()
 
     let entire_rep_used = i == representation.size()
     if not entire_rep_used then error end
 
+  fun scheme(): String => _scheme
+  fun authority(): OptionalAuthority => _authority
+  fun path(): String => _path
+  fun query(): OptionalQuery => _query
+  fun fragment(): OptionalFragment => _fragment
+
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
 
@@ -38,31 +44,36 @@ class val Uri
   fun _string(fmt: FormatSettings, unsafe: Bool): String iso^ =>
     let s = recover String end
 
-    s.append(scheme); s.append(":")
+    s.append(_scheme); s.append(":")
     try s.append("//" + _authority_string(unsafe)) end
-    s.append(path)
-    try s.append("?" + (query as String)) end
-    try s.append("#" + (fragment as String)) end
+    s.append(_path)
+    try s.append("?" + (_query as String)) end
+    try s.append("#" + (_fragment as String)) end
 
     consume s
 
   fun _authority_string(unsafe: Bool): String iso^ ? =>
-    let auth = authority as Authority
+    let auth = _authority as Authority
     if unsafe then auth.string_unsafe() else auth.string() end
 
 class val RelativeRef
-  let authority: OptionalAuthority
-  let path: String
-  let query: OptionalQuery
-  let fragment: OptionalFragment
+  let _authority: OptionalAuthority
+  let _path: String
+  let _query: OptionalQuery
+  let _fragment: OptionalFragment
 
   new val create(representation: String) ? =>
-    (authority, path, query, fragment, let i) =
+    (_authority, _path, _query, _fragment, let i) =
       _UriSyntax(representation).parse_relative_ref()
 
     let entire_rep_used = i == representation.size()
     if not entire_rep_used then error end
 
+  fun authority(): OptionalAuthority => _authority
+  fun path(): String => _path
+  fun query(): OptionalQuery => _query
+  fun fragment(): OptionalFragment => _fragment
+
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
 
@@ -74,29 +85,33 @@ class val RelativeRef
     let s = recover String end
 
     try s.append("//" + _authority_string(unsafe)) end
-    s.append(path)
-    try s.append("?" + (query as String)) end
-    try s.append("#" + (fragment as String)) end
+    s.append(_path)
+    try s.append("?" + (_query as String)) end
+    try s.append("#" + (_fragment as String)) end
 
     consume s
 
   fun _authority_string(unsafe: Bool): String iso^ ? =>
-    let auth = authority as Authority
+    let auth = _authority as Authority
     if unsafe then auth.string_unsafe() else auth.string() end
 
 type OptionalAuthority is (Authority | None)
 
 class val Authority
-  let user_info: OptionalUserInfo
-  let host: Host
-  let port: OptionalPort
+  let _user_info: OptionalUserInfo
+  let _host: Host
+  let _port: OptionalPort
 
   new val _create(host': Host, user_info': OptionalUserInfo = None,
     port': OptionalPort = None)
   =>
-    host = host'
-    user_info = user_info'
-    port = port'
+    _host = host'
+    _user_info = user_info'
+    _port = port'
+
+  fun user_info(): OptionalUserInfo => _user_info
+  fun host(): Host => _host
+  fun port(): OptionalPort => _port
 
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
@@ -110,30 +125,33 @@ class val Authority
 
     try s.append(_user_info_string(unsafe) + "@") end
 
-    match host
+    match _host
     | let h: IpLiteral => s.append("[" + h.string() + "]")
     else
-      s.append(host.string())
+      s.append(_host.string())
     end
 
-    try s.append(":" + (port as U16).string()) end
+    try s.append(":" + (_port as U16).string()) end
 
     consume s
 
   fun _user_info_string(unsafe: Bool): String iso^ ? =>
-    let info = user_info as UserInfo
+    let info = _user_info as UserInfo
     if unsafe then info.string_unsafe() else info.string() end
 
 type OptionalUserInfo is (UserInfo | None)
 type OptionalPort is (U16 | None)
 
 class val UserInfo
-  let user: String
-  let password: String
+  let _user: String
+  let _password: String
 
   new val _create(user': String, password': String) =>
-    user = user'
-    password = password'
+    _user = user'
+    _password = password'
+
+  fun user(): String => _user
+  fun password(): String => _password
 
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
@@ -145,9 +163,9 @@ class val UserInfo
   fun _string(fmt: FormatSettings, unsafe: Bool): String iso^ =>
     let s = recover String end
 
-    s.append(user)
-    if password.size() > 0 then
-      s.append(":" + if unsafe then password else "******" end)
+    s.append(_user)
+    if _password.size() > 0 then
+      s.append(":" + if unsafe then _password else "******" end)
     end
 
     consume s

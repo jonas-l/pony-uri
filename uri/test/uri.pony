@@ -45,19 +45,19 @@ actor UriTests is TestList
 
 
 class iso _UriSchemeIsMandatory is UnitTest
-  fun name(): String => "uri/Uri.scheme is mandatory"
+  fun name(): String => "uri/Uri.scheme() is mandatory"
 
   fun apply(h: TestHelper)=>
     h.assert_error(_ConstructorOf.uri(""), "Empty representation")
 
 class iso _UriSchemeIsNeverEmpty is UnitTest
-  fun name(): String => "uri/Uri.scheme is never empty"
+  fun name(): String => "uri/Uri.scheme() is never empty"
 
   fun apply(h: TestHelper)=>
   h.assert_error(_ConstructorOf.uri(":"), "Scheme must be not empty")
 
 class iso _UriSchemeStartsWithAlpha is UnitTest
-  fun name(): String => "uri/Uri.scheme starts with alpha"
+  fun name(): String => "uri/Uri.scheme() starts with alpha"
 
   fun apply(h: TestHelper)=>
   h.assert_error(_ConstructorOf.uri("-:"), "Starts with '-'")
@@ -68,23 +68,23 @@ class iso _UriSchemeStartsWithAlpha is UnitTest
 
 class iso _UriSchemeContainsAlphanumericPlusMinusDot is UnitTest
   fun name(): String =>
-    "uri/Uri.scheme contains only alphanumeric, -, + and ."
+    "uri/Uri.scheme() contains only alphanumeric, -, + and ."
 
   fun apply(h: TestHelper) ? =>
     h.assert_error(_ConstructorOf.uri("invalid/char:"), "Invalid char")
 
     let uri = Uri("special-and+numbers.123:")
-    h.assert_eq[String]("special-and+numbers.123", uri.scheme)
+    h.assert_eq[String]("special-and+numbers.123", uri.scheme())
 
 class iso _UriAuthorityStartsWithDoubleSlash is UnitTest
-  fun name(): String => "uri/Uri.authority starts with double slash"
+  fun name(): String => "uri/Uri.authority() starts with double slash"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_true(Uri("scheme:").authority is None, "Empty path")
-    h.assert_true(Uri("scheme:/").authority is None, "Absolute path")
-    h.assert_true(Uri("scheme:letters").authority is None, "Rootless path")
+    h.assert_true(Uri("scheme:").authority() is None, "Empty path")
+    h.assert_true(Uri("scheme:/").authority() is None, "Absolute path")
+    h.assert_true(Uri("scheme:letters").authority() is None, "Rootless path")
 
-    match Uri("scheme://host").authority
+    match Uri("scheme://host").authority()
     | let a: Authority => true
     | None => h.fail("Empty authority")
     else
@@ -92,7 +92,7 @@ class iso _UriAuthorityStartsWithDoubleSlash is UnitTest
     end
 
 class iso _UriHostCanBeIpFuture is UnitTest
-  fun name(): String => "uri/Uri.authority.host can be IPvFuture"
+  fun name(): String => "uri/Uri.authority().host() can be IPvFuture"
 
   fun apply(h: TestHelper) ? =>
     let host = _Authority.host(Uri("scheme://[v1337.future-ip]"), h)
@@ -103,7 +103,7 @@ class iso _UriHostCanBeIpFuture is UnitTest
     end
 
 class iso _UriHostCanBeIp6 is UnitTest
-  fun name(): String => "uri/Uri.authority.host can be IPv6"
+  fun name(): String => "uri/Uri.authority().host() can be IPv6"
 
   fun apply(h: TestHelper) ? =>
     assert_eq(h, Ip6(0, 0, 0, 0, 0, 0, 0, 0), "[::]")
@@ -125,7 +125,7 @@ class iso _UriHostCanBeIp6 is UnitTest
     end
 
 class iso _UriHostCanBeIp6WithZoneId is UnitTest
-  fun name(): String => "uri/Uri.authority.host can be IPv6 with Zone ID"
+  fun name(): String => "uri/Uri.authority().host() can be IPv6 with Zone ID"
 
   fun apply(h: TestHelper) ? =>
     assert_eq(h, Ip6.with_zone_id(0, 0, 0, 0, 0, 0, 0, 0, "en1"), "[::%25en1]")
@@ -142,7 +142,7 @@ class iso _UriHostCanBeIp6WithZoneId is UnitTest
     end
 
 class iso _UriHostCanBeIp4 is UnitTest
-  fun name(): String => "uri/Uri.authority.host can be IPv4"
+  fun name(): String => "uri/Uri.authority().host() can be IPv4"
 
   fun apply(h: TestHelper) ? =>
     let host = _Authority.host(Uri("scheme://1.2.3.4"), h)
@@ -153,7 +153,7 @@ class iso _UriHostCanBeIp4 is UnitTest
     end
 
 class iso _UriHostCanBeRegisteredName is UnitTest
-  fun name(): String => "uri/Uri.authority.host can be registered name"
+  fun name(): String => "uri/Uri.authority().host() can be registered name"
 
   fun apply(h: TestHelper) ? =>
     let host = _Authority.host(Uri("scheme://registered%20name"), h)
@@ -164,7 +164,7 @@ class iso _UriHostCanBeRegisteredName is UnitTest
     end
     
 class iso _UriHostCanBeEmpty is UnitTest
-  fun name(): String => "uri/Uri.authority.host can be empty"
+  fun name(): String => "uri/Uri.authority().host() can be empty"
 
   fun apply(h: TestHelper) ? =>
     let host = _Authority.host(Uri("scheme://"), h)
@@ -175,106 +175,106 @@ class iso _UriHostCanBeEmpty is UnitTest
     end
 
 class iso _UriUserInfoCanBeSpecified is UnitTest
-  fun name(): String => "uri/Uri.authority.user_info can be specified"
+  fun name(): String => "uri/Uri.authority().user_info() can be specified"
 
   fun apply(h: TestHelper) ? =>
     let user_info = _Authority.user_info(Uri("scheme://user:password@"), h)
     
-    h.assert_eq[String]("user", user_info.user)
+    h.assert_eq[String]("user", user_info.user())
 
     try
-      h.assert_eq[String]("password", user_info.password as String)
+      h.assert_eq[String]("password", user_info.password() as String)
     else
       h.fail("User info password is missing.")
     end
 
 class iso _UriUserCanBeEmpty is UnitTest
-  fun name(): String => "uri/Uri.authority.user_info.user can be empty"
+  fun name(): String => "uri/Uri.authority().user_info().user can be empty"
 
   fun apply(h: TestHelper) ? =>
     let user_info = _Authority.user_info(Uri("scheme://:password@"), h)
     
-    h.assert_eq[String]("", user_info.user)
+    h.assert_eq[String]("", user_info.user())
 
 class iso _UriPasswordCanBeOmitted is UnitTest
   fun name(): String =>
-    "uri/Uri.authority.user_info.password can be omitted"
+    "uri/Uri.authority().user_info().password can be omitted"
 
   fun apply(h: TestHelper) ? =>
     let user_info = _Authority.user_info(Uri("scheme://user@"), h)
     
-    h.assert_eq[String]("", user_info.password)
+    h.assert_eq[String]("", user_info.password())
 
 class iso _UriPortCanBeSpecified is UnitTest
-  fun name(): String => "uri/Uri.authority.port can be specified"
+  fun name(): String => "uri/Uri.authority().port() can be specified"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[U16](1234, _Authority.port(Uri("scheme://host:1234"), h))
     h.assert_eq[U16](123, _Authority.port(Uri("scheme://host:0123"), h))
 
 class iso _UriPortIsIgnoredWhenEmpty is UnitTest
-  fun name(): String => "uri/Uri.authority.port is ignored when empty"
+  fun name(): String => "uri/Uri.authority().port() is ignored when empty"
 
   fun apply(h: TestHelper) ? =>
-    let actual_port = _Authority.of(Uri("scheme://host:"), h).port
+    let actual_port = _Authority.of(Uri("scheme://host:"), h).port()
     
     if actual_port isnt None then
       h.fail("Got port '" + actual_port.string() + "'.")
     end
 
 class iso _UriPathCanBeEmpty is UnitTest
-  fun name(): String => "uri/Uri.path can be empty"
+  fun name(): String => "uri/Uri.path() can be empty"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("", Uri("s://host").path)
-    h.assert_eq[String]("", Uri("s:").path)
+    h.assert_eq[String]("", Uri("s://host").path())
+    h.assert_eq[String]("", Uri("s:").path())
 
 class iso _UriPathAfterAuthorityStartsWithASlash is UnitTest
   fun name(): String =>
-    "uri/Uri.path after authority starts with a '/'"
+    "uri/Uri.path() after authority starts with a '/'"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("/path", Uri("s://host/path").path)
+    h.assert_eq[String]("/path", Uri("s://host/path").path())
 
 class iso _UriPathAfterSchemeCanStartWithASegment is UnitTest
   fun name(): String =>
-    "uri/Uri.path after scheme can start with a segment"
+    "uri/Uri.path() after scheme can start with a segment"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("segment", Uri("s:segment").path)
+    h.assert_eq[String]("segment", Uri("s:segment").path())
 
 class iso _UriPathAfterSchemeCanStartWithSlash is UnitTest
   fun name(): String =>
-    "uri/Uri.path after scheme can start with '/'"
+    "uri/Uri.path() after scheme can start with '/'"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("/segment", Uri("s:/segment").path)
+    h.assert_eq[String]("/segment", Uri("s:/segment").path())
 
 class iso _UriPathIsTerminatedByQuestionmark is UnitTest
   fun name(): String =>
-    "uri/Uri.path is terminated by '?'"
+    "uri/Uri.path() is terminated by '?'"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("segment", Uri("s:segment?query").path)
+    h.assert_eq[String]("segment", Uri("s:segment?query").path())
 
 class iso _UriPathIsTerminatedByNumberSign is UnitTest
   fun name(): String =>
-    "uri/Uri.path is terminated by '#'"
+    "uri/Uri.path() is terminated by '#'"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("segment", Uri("s:segment#fragment").path)
+    h.assert_eq[String]("segment", Uri("s:segment#fragment").path())
 
 class iso _UriQueryIsOptional is UnitTest
   fun name(): String =>
-    "uri/Uri.query is optional"
+    "uri/Uri.query() is optional"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_is[OptionalQuery](None, Uri("s://host").query)
-    h.assert_is[OptionalQuery](None, Uri("s://").query)
+    h.assert_is[OptionalQuery](None, Uri("s://host").query())
+    h.assert_is[OptionalQuery](None, Uri("s://").query())
 
 class iso _UriQueryCanBeEmpty is UnitTest
   fun name(): String =>
-    "uri/Uri.query can be empty"
+    "uri/Uri.query() can be empty"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[String]("", _Query.of(Uri("s://host?"), h))
@@ -282,29 +282,29 @@ class iso _UriQueryCanBeEmpty is UnitTest
 
 class iso _UriQueryCanContainQuestionmark is UnitTest
   fun name(): String =>
-    "uri/Uri.query can contain questionmark"
+    "uri/Uri.query() can contain questionmark"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[String]("contains?", _Query.of(Uri("s://?contains?"), h))
 
 class iso _UriQueryCanContainSlash is UnitTest
   fun name(): String =>
-    "uri/Uri.query can contain slash"
+    "uri/Uri.query() can contain slash"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[String]("contains/", _Query.of(Uri("s://?contains/"), h))
 
 class iso _UriFragmentIsOptional is UnitTest
   fun name(): String =>
-    "uri/Uri.fragment is optional"
+    "uri/Uri.fragment() is optional"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_is[OptionalFragment](None, Uri("s://host").fragment)
-    h.assert_is[OptionalFragment](None, Uri("s://").fragment)
+    h.assert_is[OptionalFragment](None, Uri("s://host").fragment())
+    h.assert_is[OptionalFragment](None, Uri("s://").fragment())
 
 class iso _UriFragmentCanBeEmpty is UnitTest
   fun name(): String =>
-    "uri/Uri.fragment can be empty"
+    "uri/Uri.fragment() can be empty"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[String]("", _Fragment.of(Uri("s://host#"), h))
@@ -312,14 +312,14 @@ class iso _UriFragmentCanBeEmpty is UnitTest
 
 class iso _UriFragmentCanContainQuestionmark is UnitTest
   fun name(): String =>
-    "uri/Uri.fragment can contain questionmark"
+    "uri/Uri.fragment() can contain questionmark"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[String]("contains?", _Fragment.of(Uri("s://#contains?"), h))
 
 class iso _UriFragmentCanContainSlash is UnitTest
   fun name(): String =>
-    "uri/Uri.fragment can contain slash"
+    "uri/Uri.fragment() can contain slash"
 
   fun apply(h: TestHelper) ? =>
     h.assert_eq[String]("contains/", _Fragment.of(Uri("s://#contains/"), h))

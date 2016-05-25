@@ -26,7 +26,7 @@ class iso _RelativeRefCanBeNetworkPath is UnitTest
       _Authority.unexpected(host, h)
     end
 
-    h.assert_eq[String]("/some-path", rel.path)
+    h.assert_eq[String]("/some-path", rel.path())
     h.assert_eq[String]("query", _Query.of(rel, h))
     h.assert_eq[String]("fragment", _Fragment.of(rel, h))
 
@@ -36,8 +36,8 @@ class iso _RelativeRefCanBeAbsolutePath is UnitTest
   fun apply(h: TestHelper) ? =>
     let rel = RelativeRef("/absolute-path?query#fragment")
 
-    h.assert_is[OptionalAuthority](None, rel.authority)
-    h.assert_eq[String]("/absolute-path", rel.path)
+    h.assert_is[OptionalAuthority](None, rel.authority())
+    h.assert_eq[String]("/absolute-path", rel.path())
     h.assert_eq[String]("query", _Query.of(rel, h))
     h.assert_eq[String]("fragment", _Fragment.of(rel, h))
 
@@ -47,8 +47,8 @@ class iso _RelativeRefCanBeRelativePath is UnitTest
   fun apply(h: TestHelper) ? =>
     let rel = RelativeRef("relative-path?query#fragment")
 
-    h.assert_is[OptionalAuthority](None, rel.authority)
-    h.assert_eq[String]("relative-path", rel.path)
+    h.assert_is[OptionalAuthority](None, rel.authority())
+    h.assert_eq[String]("relative-path", rel.path())
     h.assert_eq[String]("query", _Query.of(rel, h))
     h.assert_eq[String]("fragment", _Fragment.of(rel, h))
 
@@ -57,7 +57,7 @@ class iso _RelativeRefFirstSegmentWithColonPreceededByDotSegment is UnitTest
     "uri/RelativeRef first segment with colon preceded by a dot segment"
 
   fun apply(h: TestHelper) ? =>
-    h.assert_eq[String]("./this:that", RelativeRef("./this:that").path)
+    h.assert_eq[String]("./this:that", RelativeRef("./this:that").path())
 
     let rel_constructor = _ConstructorOf.relative_ref("this:that")
     h.assert_error(rel_constructor, "Colon in first segment")
@@ -68,7 +68,7 @@ class iso _RelativeRefCanBeEmpty is UnitTest
   fun apply(h: TestHelper) ? =>
     let rel = RelativeRef("")
 
-    h.assert_is[OptionalAuthority](rel.authority, None)
-    h.assert_eq[String](rel.path, "")
-    h.assert_is[OptionalQuery](rel.query, None)
-    h.assert_is[OptionalFragment](rel.fragment, None)
+    h.assert_is[OptionalAuthority](rel.authority(), None)
+    h.assert_eq[String](rel.path(), "")
+    h.assert_is[OptionalQuery](rel.query(), None)
+    h.assert_is[OptionalFragment](rel.fragment(), None)
