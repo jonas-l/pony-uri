@@ -9,3 +9,4 @@ actor Main is TestList
     UriTests.make().tests(test)
     IpTests.make().tests(test)
     RelativeRefTests.make().tests(test)
+    UriReferenceResolutionTests.make().tests(test)

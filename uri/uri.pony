@@ -28,6 +28,16 @@ class val Uri
     let entire_rep_used = i == representation.size()
     if not entire_rep_used then error end
 
+  new iso _from_components(
+    scheme': String, authority': OptionalAuthority, path': String,
+    query': OptionalQuery, fragment': OptionalFragment)
+  =>
+    _scheme = scheme'
+    _authority = authority'
+    _path = path'
+    _query = query'
+    _fragment = fragment'
+
   fun scheme(): String => _scheme
   fun authority(): OptionalAuthority => _authority
   fun path(): String => _path
@@ -73,6 +83,9 @@ class val RelativeRef
   fun path(): String => _path
   fun query(): OptionalQuery => _query
   fun fragment(): OptionalFragment => _fragment
+
+  fun in_context_of(base_uri: Uri box): Uri iso^ =>
+    _RelativeResolution.transform(base_uri, this)
 
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
