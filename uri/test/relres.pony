@@ -6,8 +6,50 @@ actor UriReferenceResolutionTests is TestList
   new make() => None
 
   fun tag tests(test: PonyTest) =>
+    test(_RelativeResolutionOfUriProducesItself)
+    test(_ResolutionIsStrict)
     test(_NormalExamples)
     test(_AbnormalExamples)
+
+class iso _RelativeResolutionOfUriProducesItself is UnitTest
+  """
+  The first [normal example provided in RFC3986][1]
+
+  [1]: http://tools.ietf.org/html/rfc3986#section-5.4.1
+  """
+  
+  fun name(): String => "uri/Uri.in_context_of is a copy of itself"
+
+  fun apply(h: TestHelper) ? =>
+    _assert_transforms_to("g:h", "g:h", h)
+
+  fun _assert_transforms_to(uri: String, expected_uri: String, h: TestHelper) ?
+  =>
+    let reference = Uri(uri)
+    let base = Uri("http://a/b/c/d;p?q")
+    let actual_uri = reference.in_context_of(base).string()
+
+    h.assert_eq[String](expected_uri, consume actual_uri, uri)
+
+class iso _ResolutionIsStrict is UnitTest
+  """
+  The last [abnormal example provided in RFC3986][1]
+
+  [1]: http://tools.ietf.org/html/rfc3986#section-5.4.2
+  """
+
+  fun name(): String => "uri/Uri.in_context_of is strict"
+
+  fun apply(h: TestHelper) ? =>
+    _assert_transforms_to("http:g", "http:g", h)
+
+  fun _assert_transforms_to(uri: String, expected_uri: String, h: TestHelper) ?
+  =>
+    let reference = Uri(uri)
+    let base = Uri("http://a/b/c/d;p?q")
+    let actual_uri = reference.in_context_of(base).string()
+
+    h.assert_eq[String](expected_uri, consume actual_uri, uri)
 
 class iso _NormalExamples is UnitTest
   """

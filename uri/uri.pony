@@ -44,6 +44,30 @@ class val Uri
   fun query(): OptionalQuery => _query
   fun fragment(): OptionalFragment => _fragment
 
+  fun in_context_of(base_uri: Uri box): Uri iso^ =>
+    Uri._from_components(
+      this.scheme(),
+      _clone_optional_authority(this.authority()),
+      this.path().clone(),
+      _clone_optional_string(this.query()),
+      _clone_optional_string(this.fragment()))
+
+  fun tag _clone_optional_string(value: (String|None)): (String|None) =>
+    match value
+    | let s: String => s.clone()
+    else
+      None
+    end
+
+  fun tag _clone_optional_authority
+    (value: OptionalAuthority): OptionalAuthority
+  =>
+    match value
+    | let a: Authority => a.clone()
+    else
+      None
+    end
+
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
 
@@ -126,6 +150,31 @@ class val Authority
   fun host(): Host => _host
   fun port(): OptionalPort => _port
 
+  fun clone(): Authority =>
+    let host_clone: Host = match _host
+    | let ip_future: IpFuture => ip_future.clone()
+    | let ip6: Ip6 => ip6.clone()
+    | let ip4: Ip4 => ip4.clone()
+    | let name: String => name.clone()
+    else
+      "" // this should never happen
+    end
+    _create(host_clone, _clone_user_info(_user_info), _clone_port(_port))
+
+  fun tag _clone_user_info(value: OptionalUserInfo): OptionalUserInfo =>
+    match value
+    | let i: UserInfo => i.clone()
+    else
+      None
+    end
+
+  fun tag _clone_port(value: OptionalPort): OptionalPort =>
+    match value
+    | let v: U16 => v
+    else
+      None
+    end
+
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
 
@@ -166,6 +215,9 @@ class val UserInfo
   fun user(): String => _user
   fun password(): String => _password
 
+  fun clone(): UserInfo =>
+    _create(_user.clone(), _password.clone())
+
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string(fmt, false)
 
@@ -198,6 +250,9 @@ class val Ip4 is (Stringable & Equatable[Ip4])
   fun eq(that: Ip4 box): Bool =>
     (b1 == that.b1) and (b2 == that.b2) and (b3 == that.b3) and (b4 == that.b4)
 
+  fun clone(): Ip4 =>
+    create(b1, b2, b3, b4)
+
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     ".".join([as Stringable: b1, b2, b3, b4])
 
@@ -211,6 +266,9 @@ class val IpFuture is (Stringable & Equatable[IpFuture])
 
   fun eq(that: IpFuture box): Bool =>
     (version == that.version) and (address == that.address)
+
+  fun clone(): IpFuture =>
+    create(version, address)
 
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     ("v" + version + "." + address).string(fmt)
@@ -268,10 +326,22 @@ class val Ip6 is (Stringable & Equatable[Ip6])
 
     _string = consume s
 
+  new iso _copy(b1': U16, b2': U16, b3': U16, b4': U16, b5': U16,
+    b6': U16, b7': U16, b8': U16, zone_id': (String | None),
+    representation: String)
+  =>
+    b1 = b1'; b2 = b2'; b3 = b3'; b4 = b4'
+    b5 = b5'; b6 = b6'; b7 = b7'; b8 = b8'
+    zone_id = zone_id'
+    _string = representation
+
   fun eq(that: Ip6): Bool =>
     (b1 == that.b1) and (b2 == that.b2) and (b3 == that.b3) and
     (b4 == that.b4) and (b5 == that.b5) and (b6 == that.b6) and
     (b7 == that.b7) and (b8 == that.b8)
+
+  fun clone(): Ip6 iso^ =>
+    _copy(b1, b2, b3, b4, b5, b6, b7, b8, zone_id, _string)
 
   fun string(fmt: FormatSettings = FormatSettingsDefault): String iso^ =>
     _string.clone()

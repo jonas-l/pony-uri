@@ -33,4 +33,13 @@ let rel_ref = RelativeRef("../right/here?name=otter")
 rel_ref.in_context_of(uri) // Uri("foo://example.com:8042/right/here?name=otter")
 ```
 
+`Uri` implements the same contract and can be resolved in context of other `Uri`, although the result is always a copy of a reference:
+
+```pony
+let uri = Uri("http://example.com")
+let base_uri = Uri("ftp://example.org/foo")
+
+uri.in_context_of(base_uri) // Uri("http://example.com")
+```
+
 [1]: http://www.ics.uci.edu/~fielding/pubs/dissertation/evaluation.htm#sec_6_2
