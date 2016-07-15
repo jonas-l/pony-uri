@@ -1,4 +1,4 @@
-class val Uri
+class val Uri is UriReference
   """
   Represents a Uniform Resource Identifier (URI) as defined in [RFC3986][1].
 
@@ -90,7 +90,7 @@ class val Uri
     let auth = _authority as Authority
     if unsafe then auth.string_unsafe() else auth.string() end
 
-class val RelativeRef
+class val RelativeRef is UriReference
   let _authority: OptionalAuthority
   let _path: String
   let _query: OptionalQuery
